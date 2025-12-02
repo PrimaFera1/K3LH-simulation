@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Pemilihan APD - K3LH SMK</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .instruction {
+            background: #f0f8ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+        }
+
+        .instruction h3 {
+            color: #2196F3;
+            margin-bottom: 8px;
+        }
+
+        .scenario-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .scenario-section h2 {
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .scenario-section p {
+            color: #856404;
+            font-size: 1.1em;
+        }
+
+        .content-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .apd-pool, .dropzone-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #ccc;
+        }
+
+        .apd-pool h3, .dropzone-container h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .apd-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .apd-item {
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: move;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .apd-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .apd-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .apd-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+        }
+
+        .apd-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .dropzone {
+            min-height: 200px;
+            background: white;
+            border: 3px dashed #999;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-content: flex-start;
+        }
+
+        .dropzone.drag-over {
+            background: #e3f2fd;
+            border-color: #2196F3;
+        }
+
+        .dropzone-placeholder {
+            width: 100%;
+            text-align: center;
+            color: #999;
+            padding: 50px 20px;
+            font-size: 1.1em;
+        }
+
+        .dropped-item {
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .dropped-item.correct {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .dropped-item.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #d32f2f;
+            transform: scale(1.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-check {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-check:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-reset {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #f57c00;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+
+        .feedback {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+            display: block;
+        }
+
+        .feedback.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+            display: block;
+        }
+
+        .error-list {
+            margin-top: 10px;
+            text-align: left;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .error-list li {
+            margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+            .content-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .apd-items {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🦺 Simulasi Pemilihan APD yang Tepat</h1>
+            <p>Media Pembelajaran K3LH - SMK Kelas 10</p>
+        </div>
+
+        <!-- Instruksi -->
+        <div class="instruction">
+            <h3>📋 Cara Bermain:</h3>
+            <p>1. Baca skenario pekerjaan yang diberikan<br>
+               2. Seret dan jatuhkan APD yang sesuai ke area "Dropzone APD"<br>
+               3. Klik tombol "Cek Hasil" untuk melihat jawaban Anda<br>
+               4. Gunakan tombol "Reset" untuk mengulang dari awal</p>
+        </div>
+
+        <!-- Skenario -->
+        <div class="scenario-section">
+            <h2>
+                <span>⚙️</span>
+                <span>Skenario Pekerjaan</span>
+            </h2>
+            <p id="scenarioText">Loading...</p>
+        </div>
+
+        <!-- Area Konten -->
+        <div class="content-area">
+            <!-- Pool APD -->
+            <div class="apd-pool">
+                <h3>🛠️ Pilihan APD Tersedia</h3>
+                <div class="apd-items" id="apdPool"></div>
+            </div>
+
+            <!-- Dropzone -->
+            <div class="dropzone-container">
+                <h3>✅ APD yang Dipilih (Seret ke sini)</h3>
+                <div class="dropzone" id="dropzone">
+                    <div class="dropzone-placeholder">Seret APD ke sini...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tombol Aksi -->
+        <div class="button-group">
+            <button class="btn btn-check" onclick="checkAnswer()">🔍 Cek Hasil</button>
+            <button class="btn btn-reset" onclick="resetSimulasi()">🔄 Reset</button>
+        </div>
+
+        <!-- Feedback -->
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATA SKENARIO DAN APD
+        // ============================================
+        const scenarios = {
+            pengelasan: {
+                title: "Pekerjaan Pengelasan",
+                description: "Seorang pekerja akan melakukan pengelasan logam menggunakan mesin las listrik. Pekerjaan ini menghasilkan percikan api, radiasi ultraviolet, dan panas tinggi.",
+                correctAPD: ["helm-las", "sarung-tangan-kulit", "kacamata-las"],
+                allAPD: [
+                    { id: "helm-las", name: "Helm Las", icon: "⛑️" },
+                    { id: "sarung-tangan-kulit", name: "Sarung Tangan Kulit", icon: "🧤" },
+                    { id: "kacamata-las", name: "Kacamata Las", icon: "🥽" },
+                    { id: "penutup-telinga", name: "Penutup Telinga", icon: "🎧" },
+                    { id: "masker-debu", name: "Masker Debu", icon: "😷" },
+                    { id: "sepatu-boot", name: "Sepatu Boot", icon: "👢" },
+                    { id: "helm-proyek", name: "Helm Proyek", icon: "👷" },
+                    { id: "apron-plastik", name: "Apron Plastik", icon: "👔" }
+                ]
+            }
+            // Template untuk menambah skenario lain di masa depan:
+            // namaSkenario: {
+            //     title: "Judul Skenario",
+            //     description: "Deskripsi detail pekerjaan",
+            //     correctAPD: ["id-apd-1", "id-apd-2"],
+            //     allAPD: [{ id: "id-apd-1", name: "Nama APD", icon: "🔧" }, ...]
+            // }
+        };
+
+        // Skenario aktif saat ini
+        let currentScenario = scenarios.pengelasan;
+        let droppedItems = [];
+
+        // ============================================
+        // INISIALISASI APLIKASI
+        // ============================================
+        function initApp() {
+            loadScenario();
+            renderAPDPool();
+            initDragDrop();
+        }
+
+        // ============================================
+        // LOAD SKENARIO
+        // ============================================
+        function loadScenario() {
+            document.getElementById('scenarioText').textContent = currentScenario.description;
+        }
+
+        // ============================================
+        // RENDER APD POOL
+        // ============================================
+        function renderAPDPool() {
+            const pool = document.getElementById('apdPool');
+            pool.innerHTML = '';
+
+            currentScenario.allAPD.forEach(apd => {
+                const apdElement = createAPDElement(apd);
+                pool.appendChild(apdElement);
+            });
+        }
+
+        // ============================================
+        // BUAT ELEMEN APD
+        // ============================================
+        function createAPDElement(apd) {
+            const div = document.createElement('div');
+            div.className = 'apd-item';
+            div.draggable = true;
+            div.dataset.apdId = apd.id;
+            div.innerHTML = `
+                <div class="apd-icon">${apd.icon}</div>
+                <div class="apd-name">${apd.name}</div>
+            `;
+            return div;
+        }
+
+        // ============================================
+        // INISIALISASI DRAG AND DROP
+        // ============================================
+        function initDragDrop() {
+            const pool = document.getElementById('apdPool');
+            const dropzone = document.getElementById('dropzone');
+
+            // Event untuk APD Pool
+            pool.addEventListener('dragstart', handleDragStart);
+            pool.addEventListener('dragend', handleDragEnd);
+
+            // Event untuk Dropzone
+            dropzone.addEventListener('dragover', handleDragOver);
+            dropzone.addEventListener('dragleave', handleDragLeave);
+            dropzone.addEventListener('drop', handleDrop);
+        }
+
+        // ============================================
+        // HANDLER DRAG START
+        // ============================================
+        function handleDragStart(e) {
+            if (e.target.classList.contains('apd-item')) {
+                e.target.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', e.target.dataset.apdId);
+            }
+        }
+
+        // ============================================
+        // HANDLER DRAG END
+        // ============================================
+        function handleDragEnd(e) {
+            if (e.target.classList.contains('apd-item')) {
+                e.target.classList.remove('dragging');
+            }
+        }
+
+        // ============================================
+        // HANDLER DRAG OVER
+        // ============================================
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        // ============================================
+        // HANDLER DRAG LEAVE
+        // ============================================
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        // ============================================
+        // HANDLER DROP
+        // ============================================
+        function handleDrop(e) {
+            e.preventDefault();
+            const dropzone = e.currentTarget;
+            dropzone.classList.remove('drag-over');
+
+            const apdId = e.dataTransfer.getData('text/plain');
+            
+            // Cek apakah APD sudah ada di dropzone
+            if (droppedItems.includes(apdId)) {
+                return;
+            }
+
+            // Tambahkan ke dropzone
+            addToDropzone(apdId);
+            
+            // Hapus placeholder jika ada
+            const placeholder = dropzone.querySelector('.dropzone-placeholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
+        }
+
+        // ============================================
+        // TAMBAH APD KE DROPZONE
+        // ============================================
+        function addToDropzone(apdId) {
+            const apd = currentScenario.allAPD.find(item => item.id === apdId);
+            if (!apd) return;
+
+            droppedItems.push(apdId);
+
+            const dropzone = document.getElementById('dropzone');
+            const droppedElement = document.createElement('div');
+            droppedElement.className = 'dropped-item';
+            droppedElement.dataset.apdId = apdId;
+            droppedElement.innerHTML = `
+                <div class="apd-icon">${apd.icon}</div>
+                <div class="apd-name">${apd.name}</div>
+                <button class="remove-btn" onclick="removeFromDropzone('${apdId}')">×</button>
+            `;
+
+            dropzone.appendChild(droppedElement);
+
+            // Sembunyikan feedback saat menambah item baru
+            hideFeedback();
+        }
+
+        // ============================================
+        // HAPUS APD DARI DROPZONE
+        // ============================================
+        function removeFromDropzone(apdId) {
+            // Hapus dari array
+            droppedItems = droppedItems.filter(id => id !== apdId);
+
+            // Hapus elemen dari DOM
+            const dropzone = document.getElementById('dropzone');
+            const element = dropzone.querySelector(`[data-apd-id="${apdId}"]`);
+            if (element) {
+                element.remove();
+            }
+
+            // Tambahkan placeholder jika dropzone kosong
+            if (droppedItems.length === 0) {
+                dropzone.innerHTML = '<div class="dropzone-placeholder">Seret APD ke sini...</div>';
+            }
+
+            // Sembunyikan feedback
+            hideFeedback();
+        }
+
+        // ============================================
+        // CEK JAWABAN
+        // ============================================
+        function checkAnswer() {
+            const feedback = document.getElementById('feedback');
+            
+            // Validasi: cek apakah ada APD yang dipilih
+            if (droppedItems.length === 0) {
+                showFeedback('error', 'Anda belum memilih APD apapun! Silakan pilih APD yang sesuai.');
+                return;
+            }
+
+            const correctAPD = currentScenario.correctAPD;
+            const incorrectItems = [];
+            const missingItems = [];
+
+            // Cek APD yang salah
+            droppedItems.forEach(apdId => {
+                const element = document.querySelector(`.dropped-item[data-apd-id="${apdId}"]`);
+                if (correctAPD.includes(apdId)) {
+                    element.classList.add('correct');
+                    element.classList.remove('incorrect');
+                } else {
+                    element.classList.add('incorrect');
+                    element.classList.remove('correct');
+                    const apd = currentScenario.allAPD.find(item => item.id === apdId);
+                    incorrectItems.push(apd.name);
+                }
+            });
+
+            // Cek APD yang kurang
+            correctAPD.forEach(apdId => {
+                if (!droppedItems.includes(apdId)) {
+                    const apd = currentScenario.allAPD.find(item => item.id === apdId);
+                    missingItems.push(apd.name);
+                }
+            });
+
+            // Tampilkan hasil
+            if (incorrectItems.length === 0 && missingItems.length === 0) {
+                showFeedback('success', '🎉 Selamat! APD yang Anda pilih sudah tepat dan lengkap!');
+            } else {
+                let errorMessage = '❌ Pemilihan APD belum tepat!';
+                let errorDetails = '<ul class="error-list">';
+                
+                if (incorrectItems.length > 0) {
+                    errorDetails += '<li><strong>APD yang tidak diperlukan:</strong> ' + incorrectItems.join(', ') + '</li>';
+                }
+                
+                if (missingItems.length > 0) {
+                    errorDetails += '<li><strong>APD yang masih kurang:</strong> ' + missingItems.join(', ') + '</li>';
+                }
+                
+                errorDetails += '</ul>';
+                showFeedback('error', errorMessage + errorDetails);
+            }
+        }
+
+        // ============================================
+        // TAMPILKAN FEEDBACK
+        // ============================================
+        function showFeedback(type, message) {
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback ' + type;
+            feedback.innerHTML = message;
+            feedback.style.display = 'block';
+            
+            // Scroll ke feedback
+            feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // ============================================
+        // SEMBUNYIKAN FEEDBACK
+        // ============================================
+        function hideFeedback() {
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'none';
+            feedback.className = 'feedback';
+        }
+
+        // ============================================
+        // RESET SIMULASI
+        // ============================================
+        function resetSimulasi() {
+            // Reset dropped items
+            droppedItems = [];
+
+            // Reset dropzone
+            const dropzone = document.getElementById('dropzone');
+            dropzone.innerHTML = '<div class="dropzone-placeholder">Seret APD ke sini...</div>';
+
+            // Sembunyikan feedback
+            hideFeedback();
+
+            // Render ulang APD pool
+            renderAPDPool();
+            initDragDrop();
+        }
+
+        // ============================================
+        // JALANKAN APLIKASI SAAT HALAMAN DIMUAT
+        // ============================================
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
